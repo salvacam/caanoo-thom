@@ -1,0 +1,84 @@
+#
+# THOM port on GP2X 
+#
+# Copyright (C) 2009 Ludovic Jacomme (ludovic.jacomme@gmail.com)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+THOM_VERSION=1.1.0
+
+TARGET = wizthom.gpe
+SDL_CONFIG = $(WIZDEV)/bin/sdl-config
+OBJS = gp2x_psp.o \
+cpuwiz.o  \
+disk.o \
+errors.o \
+hardware.o \
+k7.o \
+keyboard.o \
+mouse.o \
+psp_danzeff.o \
+psp_fmgr.o \
+psp_run.o \
+psp_font.o \
+psp_kbd.o \
+psp_main.o \
+psp_menu.o \
+psp_menu_kbd.o \
+psp_menu_set.o \
+psp_menu_help.o \
+psp_sdl.o \
+to7.o \
+udisplay.o \
+ugraphic.o \
+main.o \
+usound.o \
+global.o \
+mc68xx/dasm6809.o \
+mc68xx/mc6809.o \
+mc68xx/mc6821.o \
+mc68xx/mc6846.o \
+
+CC=openwiz-gcc
+CXX=openwiz-g++
+STRIP=openwiz-strip
+
+DEFAULT_CFLAGS = $(shell $(SDL_CONFIG) --cflags)
+
+MORE_CFLAGS = -I. -I$(WIZDEV)/include \
+-DNO_STDIO_REDIRECT  -DTHOM_VERSION=\"$(THOM_VERSION)\" \
+-DWIZ_MODE 
+
+CFLAGS = $(DEFAULT_CFLAGS) $(MORE_CFLAGS) -O2 -Wall -fsigned-char
+
+LIBS += -Wl,-rpath,$(OPENWIZ)/lib -L$(WIZDEV)/lib -lSDL_image -lSDL -lpng -lz -lm -lpthread
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.cpp.o:
+	$(CXX) $(CFLAGS) -c $< -o $@
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $(TARGET) && $(STRIP) $(TARGET)
+
+install: $(TARGET)
+	cp $< /media/usbdisk/game/wizthom/
+
+clean:
+	rm -f $(OBJS) $(TARGET)
+
+ctags: 
+	ctags *[ch]
